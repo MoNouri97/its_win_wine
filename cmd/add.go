@@ -1,11 +1,12 @@
 /*
 Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
+	"encoding/csv"
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -13,15 +14,28 @@ import (
 // addCmd represents the add command
 var addCmd = &cobra.Command{
 	Use:   "add",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Add a new sync entry",
+	Long:  `Add a new sync entry`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("add called")
+		name := args[0]
+		win := args[1]
+		linux := args[2]
+		f, e := os.Create("./list.csv")
+		if e != nil {
+			fmt.Println(e)
+			return
+		}
+		writer := csv.NewWriter(f)
+		data := [][]string{
+			{"Name", "Windows", "Wine_linux"},
+			{name, win, linux},
+		}
+
+		e = writer.WriteAll(data)
+		if e != nil {
+			fmt.Println(e)
+		}
 	},
 }
 
