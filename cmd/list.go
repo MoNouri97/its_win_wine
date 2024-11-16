@@ -4,7 +4,11 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"encoding/csv"
 	"fmt"
+	"os"
+	"strings"
+	"unicode/utf8"
 
 	"github.com/spf13/cobra"
 )
@@ -20,8 +24,65 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("list called")
+		f, err := os.OpenFile(DataFile, os.O_RDWR, os.ModeAppend)
+		if err != nil {
+			println(err.Error())
+			os.Exit(1)
+			return
+		}
+		defer f.Close()
+
+		prev := csv.NewReader(f)
+
+		data, err := prev.ReadAll()
+		if err != nil {
+			println(err.Error())
+			os.Exit(1)
+			return
+		}
+		if len(data) == 0 {
+			fmt.Println("No data found in CSV file")
+			return
+		}
+		// Get the maximum width for each column
+		columnWidths := make([]int, len(data[0]))
+		for _, row := range data {
+			for i, cell := range row {
+				width := utf8.RuneCountInString(cell)
+				if width > columnWidths[i] {
+					columnWidths[i] = width
+				}
+			}
+		}
+
+		// Print the table
+		printSeparator(columnWidths)
+
+		// Print headers
+		for i, header := range data[0] {
+			fmt.Printf("| %-*s ", columnWidths[i], header)
+		}
+		fmt.Println("|")
+
+		// printSeparator(columnWidths)
+
+		// Print data rows
+		for _, row := range data[1:] {
+			for i, cell := range row {
+				fmt.Printf("| %-*s ", columnWidths[i], cell)
+			}
+			fmt.Println("|")
+		}
+
+		printSeparator(columnWidths)
 	},
+}
+
+func printSeparator(widths []int) {
+	for _, w := range widths {
+		fmt.Print("+", strings.Repeat("-", w+2))
+	}
+	fmt.Println("+")
 }
 
 func init() {

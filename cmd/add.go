@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var dataFile = "./list.csv"
+var DataFile = "./list.csv"
 
 // addCmd represents the add command
 var addCmd = &cobra.Command{
@@ -33,7 +33,7 @@ var addCmd = &cobra.Command{
 			return
 		}
 		newFile := false
-		f, err := os.OpenFile(dataFile, os.O_RDWR, os.ModeAppend)
+		f, err := os.OpenFile(DataFile, os.O_RDWR, os.ModeAppend)
 
 		if err != nil && os.IsNotExist(err) {
 			f, err = os.Create("./list.csv")
