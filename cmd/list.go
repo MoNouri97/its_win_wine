@@ -13,6 +13,30 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func ReadData() [][]string {
+	f, err := os.OpenFile(DataFile, os.O_RDWR, os.ModeAppend)
+	if err != nil {
+		println(err.Error())
+		os.Exit(1)
+		return nil
+	}
+	defer f.Close()
+
+	prev := csv.NewReader(f)
+
+	data, err := prev.ReadAll()
+	if err != nil {
+		println(err.Error())
+		os.Exit(1)
+		return nil
+	}
+	if len(data) == 0 {
+		fmt.Println("No data found in CSV file")
+		return nil
+	}
+	return data
+}
+
 // listCmd represents the list command
 var listCmd = &cobra.Command{
 	Use:   "list",
@@ -24,26 +48,7 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		f, err := os.OpenFile(DataFile, os.O_RDWR, os.ModeAppend)
-		if err != nil {
-			println(err.Error())
-			os.Exit(1)
-			return
-		}
-		defer f.Close()
-
-		prev := csv.NewReader(f)
-
-		data, err := prev.ReadAll()
-		if err != nil {
-			println(err.Error())
-			os.Exit(1)
-			return
-		}
-		if len(data) == 0 {
-			fmt.Println("No data found in CSV file")
-			return
-		}
+		data := ReadData()
 		// Get the maximum width for each column
 		columnWidths := make([]int, len(data[0]))
 		for _, row := range data {
