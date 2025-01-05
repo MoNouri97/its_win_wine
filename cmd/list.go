@@ -74,7 +74,7 @@ to quickly create a Cobra application.`,
 		// Print data rows
 		for _, row := range data[1:] {
 			for i, cell := range row {
-				fmt.Printf("| %-*s ", columnWidths[i], cell)
+				fmt.Printf("| %-*s ", columnWidths[i], prettyPath(cell))
 			}
 			fmt.Println("|")
 		}
@@ -88,6 +88,16 @@ func printSeparator(widths []int) {
 		fmt.Print("+", strings.Repeat("-", w+2))
 	}
 	fmt.Println("+")
+}
+
+func prettyPath(arr string) string {
+	parts := strings.Split(strings.Trim(arr, "/"), "/")
+	if len(parts) > 2 {
+		short := parts[len(parts)-3:]
+		return ".../" + strings.Join(short, "/")
+
+	}
+	return arr
 }
 
 func init() {
